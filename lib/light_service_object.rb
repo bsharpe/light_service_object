@@ -2,6 +2,26 @@ require "light_service_object/version"
 require "dry/initializer"
 require "dry/monads/result"
 
+# frozen_string_literal: true
+
+if defined?(Ensurance)
+  # Define a dispatcher for `:model` option
+  rails_dispatcher = ->(ensure: nil, **options) do
+    # NOTE: This is because 'ensure' is a reserved word in Ruby
+    klass = binding.local_variable_get(:ensure)
+    return options unless klass
+
+    klass = klass.constantize if klass.is_a?(String)
+    klass = klass.klass if klass.is_a?(ActiveRecord::Relation)
+
+    coercer = ->(value) { klass.ensure(value) }
+    options.merge(type: coercer)
+  end
+
+  # Register a dispatcher
+  Dry::Initializer::Dispatchers << rails_dispatcher
+end
+
 module LightServiceObject
   class Error < StandardError; end
 

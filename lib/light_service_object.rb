@@ -11,7 +11,14 @@ if defined?(Ensurance)
     klass = binding.local_variable_get(:ensure)
     return options unless klass
 
-    klass = klass.constantize if klass.is_a?(String)
+    begin
+      klass = klass.constantize if klass.is_a?(String)
+    rescue NameError => e
+      msg = "LightServiceObject: #{self.class} cannot ensure(#{klass}) as the model can't be found"
+      Rails.logger.error msg
+      puts msg if !Rails.env.production?
+      raise e
+    end
     klass = klass.klass if klass.is_a?(ActiveRecord::Relation)
 
     coercer = ->(value) { klass.ensure(value) }

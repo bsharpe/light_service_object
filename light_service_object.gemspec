@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["bsharpe@gmail.com"]
 
   spec.summary       = %q{A lightweight base service object for Rails/Ruby}
-  spec.description   = %q{A lightweight base service object for Rails/Ruby}
+  spec.description   = %q{Service object based on DRY.rb components for speed and less boilerplate }
   spec.homepage      = "https://github.com/bsharpe/light_service_object"
   spec.license       = "MIT"
 

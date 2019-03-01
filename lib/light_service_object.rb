@@ -30,8 +30,6 @@ if defined?(Ensurance)
 end
 
 module LightServiceObject
-  class Error < StandardError; end
-
   class Base
     extend Dry::Initializer
     include Dry::Monads::Result::Mixin
@@ -83,7 +81,7 @@ module LightServiceObject
     end
 
     def fail!(error)
-      raise (error.is_a?(String) ? Error.new(error) : error)
+      raise (error.is_a?(String) ? ::StandardError.new(error) : error)
     end
 
     def self.failed(error)

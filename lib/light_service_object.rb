@@ -34,6 +34,12 @@ module LightServiceObject
     extend Dry::Initializer
     include Dry::Monads::Result::Mixin
 
+
+    ## — CLASS METHODS
+    def self.result_class
+      @result_class
+    end
+
     def self.param(key, **options)
       raise Error.new("Do not use param in a service object")
     end
@@ -52,10 +58,6 @@ module LightServiceObject
       @result_class = klass.constantize if klass.is_a?(String)
     end
 
-    class << self
-      attr_reader :result_class
-    end
-
     def self.call(**options)
       obj = self.new(**options)
 
@@ -65,6 +67,15 @@ module LightServiceObject
       # ap("#{self.name} > Unknown Parameters #{unknown_params}") if unknown_params.present?
 
       result = obj.call
+    end
+
+    ## — INSTANCE METHODS
+    def result_class
+      self.class.result_class
+    end
+
+    def call
+      result = self.perform
       if self.result_class.present?
         if !result.is_a?(self.result_class)
           a_name = "#{self.result_class}"
@@ -73,24 +84,20 @@ module LightServiceObject
           fail!("#{self.name} is not returning #{a_name}")
         end
       end
-
       Dry::Monads.Success(result)
     rescue StandardError => error
-      self.failed(error)
-      Dry::Monads.Failure("#{self}: #{error}")
+      reason = self.error_reason(error)
+      Dry::Monads.Failure(reason)
     end
 
     def fail!(error)
-      raise (error.is_a?(String) ? ::StandardError.new(error) : error)
+      error = ::StandardError.new(error.to_s) if !error.is_a?(::StandardError)
+      raise error
     end
 
-    def self.failed(error)
+    def error_reason(error)
       # Give subclasses a chance to see errors first
+      "#{self}: #{error}"
     end
-
-    private
-
-      def call
-      end
   end
 end

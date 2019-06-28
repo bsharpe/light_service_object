@@ -87,6 +87,7 @@ module LightServiceObject
       Dry::Monads.Success(result)
     rescue StandardError => error
       reason = self.error_reason(error)
+      self.class.failed(error)
       Dry::Monads.Failure(reason)
     end
 
@@ -97,7 +98,7 @@ module LightServiceObject
 
     def error_reason(error)
       # Give subclasses a chance to see errors first
-      "#{self}: #{error}"
+      "#{self.class}: #{error}"
     end
   end
 end

@@ -36,37 +36,55 @@ module LightServiceObject
 
 
     ## — CLASS METHODS
-    def self.result_class
-      @result_class
+    class << self
+      def result_class
+        @result_class
+      end
+
+      def param(key, **options)
+        raise Error.new("Do not use param in a service object")
+      end
+
+      def option(*args, **opts, &block)
+        if opts.delete(:mutable)
+          self.send("attr_writer", args.first)
+        end
+        super(*args, **opts, &block)
+      end
+
+      def required(key, **options)
+        options[:private] = true
+        option(key, **options)
+      end
+
+      def optional(key, **options)
+        options[:optional] = true
+        options[:private] = true
+        option(key, **options)
+      end
+
+      def expected_result_class(klass)
+        @result_class = klass
+        @result_class = klass.constantize if klass.is_a?(String)
+      end
+
+      def call(**options)
+        begin
+          obj = self.new(**options)
+        rescue KeyError => e
+          return  Dry::Monads.Failure(e.message)
+        end
+
+        # Identify incoming params that weren't specified
+        # set_params = obj.instance_variables.map{|e| e.to_s.tr("@","").to_sym }
+        # unknown_params = (options.keys - set_params)
+        # ap("#{self.name} > Unknown Parameters #{unknown_params}") if unknown_params.present?
+
+        result = obj.call
+      end
     end
 
-    def self.param(key, **options)
-      raise Error.new("Do not use param in a service object")
-    end
-
-    def self.required(key, **options)
-      option key, **options
-    end
-
-    def self.optional(key, **options)
-      options[:optional] = true
-      option(key, **options)
-    end
-
-    def self.expected_result_class(klass)
-      @result_class = klass
-      @result_class = klass.constantize if klass.is_a?(String)
-    end
-
-    def self.call(**options)
-      obj = self.new(**options)
-
-      # Identify incoming params that weren't specified
-      # set_params = obj.instance_variables.map{|e| e.to_s.tr("@","").to_sym }
-      # unknown_params = (options.keys - set_params)
-      # ap("#{self.name} > Unknown Parameters #{unknown_params}") if unknown_params.present?
-
-      result = obj.call
+    def self.failed(error)
     end
 
     ## — INSTANCE METHODS
@@ -76,7 +94,7 @@ module LightServiceObject
 
     def call
       result = self.perform
-      if self.result_class.present?
+      if self.result_class
         if !result.is_a?(self.result_class)
           a_name = "#{self.result_class}"
           a_name = %w[a e i o u y].include?(a_name.first.downcase) ? "an #{a_name}" : "a #{a_name}"
@@ -86,19 +104,19 @@ module LightServiceObject
       end
       Dry::Monads.Success(result)
     rescue StandardError => error
+      fail!(error)
+    end
+
+    def fail!(error)
+      error = ::StandardError.new(error.to_s) if !error.is_a?(::StandardError)
       reason = self.error_reason(error)
       self.class.failed(error)
       Dry::Monads.Failure(reason)
     end
 
-    def fail!(error)
-      error = ::StandardError.new(error.to_s) if !error.is_a?(::StandardError)
-      raise error
-    end
-
     def error_reason(error)
       # Give subclasses a chance to see errors first
-      "#{self.class}: #{error}"
+      "[#{self.class}] #{error}"
     end
   end
 end

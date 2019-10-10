@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    light_service_object (0.1.5)
+    light_service_object (0.1.6)
       dry-initializer (~> 2.0)
       dry-monads (~> 1.0)
 

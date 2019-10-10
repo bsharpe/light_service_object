@@ -14,9 +14,34 @@ And then execute:
 
     $ bundle
 
-## Usage
+## A Light Service Object with a Contract
 
-TODO: Write usage instructions here
+Service objects are a great way to encapsulate business/domain functionality in a Rails app.
+
+They typically wrap some functionality up in a `call` method, with an initializer for setting parameters.
+
+```
+class TypicalServiceObject
+  def initialize(date, number)
+    @date = date
+    @number = number
+  end
+
+  def call
+    If @date - Date.today < 7 then
+      @number += 10
+    else
+      raise ArgumentError.new("Date is too far away")
+    end
+    @number
+  end
+end
+```
+
+This service object has a few problems:
+- No indication of what it's "contract" is with the outside world
+-
+
 
 ## Development
 

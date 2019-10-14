@@ -90,7 +90,7 @@ RSpec.describe LightServiceObject do
 
   context "failures" do
     it "should fail if required param isn't given" do
-      class Immutable < LightServiceObject::Base
+      class FailClass < LightServiceObject::Base
         required :name
         optional :date
 
@@ -100,11 +100,25 @@ RSpec.describe LightServiceObject do
         end
       end
 
-      result = Immutable.call(date: "2019/10/10")
+      result = FailClass.call(date: "2019/10/10")
       expect(result.success?).to eq(false)
-   end
+    end
 
+    it "should return failure if fail!() called" do
+      class FailClass < LightServiceObject::Base
+        required :name
+        optional :date
+
+        def perform
+          fail!("Always fails")
+          self.date ||= "not_a_date"
+          date
+        end
+      end
+
+      result = FailClass.call(name: "Noname")
+      expect(result.failure?).to eq(true)
+    end
   end
-
 
 end

@@ -30,10 +30,11 @@ if defined?(Ensurance)
 end
 
 module LightServiceObject
+  class ServiceError < StandardError; end
+
   class Base
     extend Dry::Initializer
     include Dry::Monads::Result::Mixin
-
 
     ## — CLASS METHODS
     class << self
@@ -71,16 +72,10 @@ module LightServiceObject
       def call(**options)
         begin
           obj = self.new(**options)
-        rescue KeyError => e
-          return  Dry::Monads.Failure(e.message)
+          obj.call
+        rescue KeyError => error
+          Dry::Monads.Failure(error.message)
         end
-
-        # Identify incoming params that weren't specified
-        # set_params = obj.instance_variables.map{|e| e.to_s.tr("@","").to_sym }
-        # unknown_params = (options.keys - set_params)
-        # ap("#{self.name} > Unknown Parameters #{unknown_params}") if unknown_params.present?
-
-        result = obj.call
       end
     end
 
@@ -103,15 +98,15 @@ module LightServiceObject
         end
       end
       Dry::Monads.Success(result)
-    rescue StandardError => error
-      fail!(error)
+    rescue Exception => error
+      Dry::Monads.Failure(error.message)
     end
 
     def fail!(error)
-      error = ::StandardError.new(error.to_s) if !error.is_a?(::StandardError)
+      error = ServiceError.new(error.to_s) if !error.is_a?(ServiceError)
       reason = self.error_reason(error)
       self.class.failed(error)
-      Dry::Monads.Failure(reason)
+      raise error
     end
 
     def error_reason(error)

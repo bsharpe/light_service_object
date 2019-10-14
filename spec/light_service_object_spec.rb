@@ -52,6 +52,23 @@ RSpec.describe LightServiceObject do
   end
 
   context "Mutable attributes" do
+    it "mutable works with AS" do
+      class Mutable < LightServiceObject::Base
+        required :name
+        optional :date, mutable: true, as: :test
+
+        def perform
+          self.test = "not_a_date"
+          test
+        end
+      end
+
+      result = Mutable.call(name: "test", date: "2019/09/26")
+
+      expect(result.success?).to eq(true)
+      expect(result.value!).to eq("not_a_date")
+    end
+
     it "mutable works" do
       class Mutable < LightServiceObject::Base
         required :name
@@ -68,6 +85,7 @@ RSpec.describe LightServiceObject do
       expect(result.success?).to eq(true)
       expect(result.value!).to eq("not_a_date")
     end
+
 
     it "should be immutable by default" do
       class Immutable < LightServiceObject::Base

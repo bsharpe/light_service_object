@@ -48,7 +48,8 @@ module LightServiceObject
 
       def option(*args, **opts, &block)
         if opts.delete(:mutable)
-          self.send("attr_writer", args.first)
+          name = opts[:as] || args.first
+          self.send("attr_writer", name)
         end
         super(*args, **opts, &block)
       end

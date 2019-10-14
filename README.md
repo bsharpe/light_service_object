@@ -18,6 +18,8 @@ And then execute:
 
 Service objects are a great way to encapsulate business/domain functionality in a Rails app.
 
+### The Old Way
+
 They typically wrap some functionality up in a `call` method, with an initializer for setting parameters.
 
 ```
@@ -28,6 +30,7 @@ class TypicalServiceObject
   end
 
   def call
+    @date = Date.parse(@date) if @date.is_a?(String)
     If @date - Date.today < 7 then
       @number += 10
     else
@@ -40,14 +43,30 @@ end
 
 This service object has a few problems:
 - No indication of what it's "contract" is with the outside world
--
+- No way to indicate failure other than Exceptions
+- Manual conversion of data into the expected form
 
+### The New Way
 
-## Development
+```
+class NewServiceObject < LightServiceObject::Base
+  required :date, ensure: Date
+  optional :number
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+  def perform
+    fail!("Date is too far away") if date - Date.today >= 7 
+    
+    number + 10
+  end
+end
+```
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+- date is required, a failure will be returned with the error message
+- date will be transformed into a Date if it isn't one already `ensure: Date`
+- `fail!(message)` causes the service to return a failure and message
+- the last thing evaluated will be returned as the result `number + 10`
+- one side note: all parameters are immutable by default
+
 
 ## Contributing
 

@@ -54,8 +54,8 @@ class NewServiceObject < LightServiceObject::Base
   optional :number
 
   def perform
-    fail!("Date is too far away") if date - Date.today >= 7 
-    
+    fail!("Date is too far away") if date - Date.today >= 7
+
     number + 10
   end
 end
@@ -67,6 +67,9 @@ end
 - the last thing evaluated will be returned as the result `number + 10`
 - one side note: all parameters are immutable by default
 
+### Why is it Light?
+
+It really is just a plain-old-ruby-object (PORO) with `Dry::Initializer` throw in with some syntax grease, and returns a `Dry::Monads::Result` -- that's it.
 
 ## Contributing
 

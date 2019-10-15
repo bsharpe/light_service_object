@@ -69,7 +69,7 @@ RSpec.describe LightServiceObject do
       expect(result.value!).to eq("not_a_date")
     end
 
-    it "mutable works" do
+   it "mutable works" do
       class Mutable < LightServiceObject::Base
         required :name
         optional :date, mutable: true

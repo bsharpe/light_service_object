@@ -71,12 +71,10 @@ module LightServiceObject
       end
 
       def call(**options)
-        begin
-          obj = self.new(**options)
-          obj.call
-        rescue KeyError => error
-          Dry::Monads.Failure(error.message)
-        end
+        obj = self.new(**options)
+        obj.call
+      rescue Exception => error
+        Dry::Monads.Failure(error.message)
       end
     end
 

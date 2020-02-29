@@ -18,7 +18,7 @@ GEM
       concurrent-ruby (~> 1.0)
       dry-core (~> 0.4, >= 0.4.4)
       dry-equalizer
-    rake (10.5.0)
+    rake (13.0.1)
     rspec (3.8.0)
       rspec-core (~> 3.8.0)
       rspec-expectations (~> 3.8.0)
@@ -39,7 +39,7 @@ PLATFORMS
 DEPENDENCIES
   bundler (~> 2.0)
   light_service_object!
-  rake (~> 10.0)
+  rake (~> 13.0)
   rspec (~> 3.0)
 
 BUNDLED WITH

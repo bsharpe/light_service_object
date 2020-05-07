@@ -21,7 +21,10 @@ if defined?(Ensurance)
     end
     klass = klass.klass if klass.is_a?(ActiveRecord::Relation)
 
-    coercer = ->(value) { klass.ensure(value) }
+    coercer = options[:private] ?
+       ->(value) { klass.ensure!(value) } :
+       ->(value) { klass.ensure(value) }
+
     options.merge(type: coercer)
   end
 

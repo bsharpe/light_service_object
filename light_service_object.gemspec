@@ -27,6 +27,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "rspec", "~> 3.0"
 
-  spec.add_dependency "dry-initializer", "~> 2.0"
+  spec.add_dependency "dry-initializer", "~> 3.0"
   spec.add_dependency "dry-monads", "~> 1.0"
 end
